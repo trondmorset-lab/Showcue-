@@ -47,8 +47,9 @@ final class AppModel: ObservableObject, ShowControl {
     private var subs: Set<AnyCancellable> = []
 
     init() {
-        settings = AppSettings.load()
-        router = RemoteRouter(settings: settings)
+        let loaded = AppSettings.load()
+        settings = loaded
+        router = RemoteRouter(settings: loaded)
         engine = CueEngine(audio: audio, output: output, midi: midi) { [weak self] in self?.cues ?? [] }
         router.show = self
         engine.onLog = { [weak self] in self?.statusText = $0 }
