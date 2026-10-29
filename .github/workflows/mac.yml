@@ -1,0 +1,24 @@
+name: Bygg ShowCue for Mac
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  mac:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tester
+        working-directory: Mac
+        run: swift test
+      - name: Lag ShowCue.app
+        working-directory: Mac
+        run: ./build-app.sh
+      - name: Pakk
+        working-directory: Mac/build
+        run: ditto -c -k --keepParent ShowCue.app ShowCue-Mac.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ShowCue-Mac
+          path: Mac/build/ShowCue-Mac.zip

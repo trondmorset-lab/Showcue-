@@ -1,0 +1,10 @@
+<Window x:Class="ShowCue.Views.OutputWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ShowCue – utgang"
+        Width="960" Height="540"
+        Background="Black"
+        ShowActivated="False"
+        ShowInTaskbar="True">
+    <Grid x:Name="Layers" Background="Black" ClipToBounds="True" />
+</Window>

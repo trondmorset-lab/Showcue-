@@ -1,0 +1,10 @@
+bin/
+obj/
+publish/
+.vs/
+*.user
+.build/
+build/
+.swiftpm/
+*.xcodeproj
+DerivedData/

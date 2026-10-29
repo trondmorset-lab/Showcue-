@@ -1,0 +1,172 @@
+<Window x:Class="ShowCue.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:ShowCue"
+        Title="Innstillinger" Width="560" Height="600"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
+        Background="{DynamicResource Panel}" Foreground="{DynamicResource Text}" FontFamily="{StaticResource UiFont}">
+    <Window.Resources>
+        <local:EnumTextConverter x:Key="EnumText" />
+        <DataTemplate x:Key="EnumItem"><TextBlock Text="{Binding Converter={StaticResource EnumText}}" /></DataTemplate>
+        <Style x:Key="Hint" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Faint}" />
+            <Setter Property="FontSize" Value="11.5" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,4,0,0" />
+        </Style>
+        <Style x:Key="Page" TargetType="StackPanel">
+            <Setter Property="Margin" Value="4,8,4,0" />
+        </Style>
+    </Window.Resources>
+
+    <DockPanel Margin="16,12,16,16">
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+            <Button Content="Avbryt" Width="90" IsCancel="True" Margin="0,0,8,0" />
+            <Button Content="OK" Width="90" IsDefault="True" Click="Ok_Click" Background="{DynamicResource Playhead}" BorderBrush="{DynamicResource Playhead}" />
+        </StackPanel>
+
+        <TabControl>
+            <!-- ================= LYD ================= -->
+            <TabItem Header="Lyd">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Style="{StaticResource Page}">
+                        <TextBlock Style="{StaticResource Label}" Text="Driver" />
+                        <ComboBox x:Name="DriverBox" ItemsSource="{x:Static local:EnumValues.AudioDrivers}" ItemTemplate="{StaticResource EnumItem}"
+                                  SelectionChanged="Driver_Changed" />
+
+                        <StackPanel x:Name="WasapiPanel">
+                            <TextBlock Style="{StaticResource Label}" Text="Lydenhet" />
+                            <ComboBox x:Name="WasapiBox" DisplayMemberPath="Value" SelectedValuePath="Key" />
+                            <TextBlock Style="{StaticResource Hint}" Text="Bruker enhetens egne kanaler og samplingsfrekvens. Dante Virtual Soundcard i WDM-modus og flerkanals USB-kort vises her." />
+                            <TextBlock Style="{StaticResource Label}" Text="Buffer (ms)" />
+                            <TextBox x:Name="LatencyBox" />
+                            <TextBlock Style="{StaticResource Hint}" Text="Lavere gir raskere respons på GO, men kan gi knaking. 40–80 ms er trygt for de fleste." />
+                        </StackPanel>
+
+                        <StackPanel x:Name="AsioPanel">
+                            <TextBlock Style="{StaticResource Label}" Text="ASIO-driver" />
+                            <ComboBox x:Name="AsioBox" />
+                            <TextBlock Style="{StaticResource Label}" Text="Maks antall kanaler" />
+                            <TextBox x:Name="AsioChannelsBox" />
+                            <TextBlock Style="{StaticResource Hint}"
+                                       Text="Alle kanalene på kortet åpnes, opptil dette tallet (Dante Virtual Soundcard: 64). Hvilke kanaler lyden går til bestemmes i Lydpatch. Bufferstørrelse og samplingsfrekvens for Dante stilles i Dante Virtual Soundcard / Dante Controller." />
+                            <TextBlock Style="{StaticResource Label}" Text="Ønsket samplingsfrekvens" />
+                            <ComboBox x:Name="RateBox" />
+                            <TextBlock Style="{StaticResource Hint}" Text="Hvis kortet ikke støtter valgt frekvens, brukes den første som virker (48, 44,1, 96 eller 88,2 kHz)." />
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ================= VIDEO ================= -->
+            <TabItem Header="Video">
+                <StackPanel Style="{StaticResource Page}">
+                    <TextBlock Style="{StaticResource Label}" Text="Utgang for video, bilde og PDF" />
+                    <ComboBox x:Name="ScreenBox" DisplayMemberPath="Value" SelectedValuePath="Key" />
+                    <TextBlock Style="{StaticResource Hint}" Text="Velg projektoren/skjermen. «Vindu» gir et vanlig vindu, nyttig for å teste på én skjerm." />
+                </StackPanel>
+            </TabItem>
+
+            <!-- ================= OSC ================= -->
+            <TabItem Header="OSC">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Style="{StaticResource Page}">
+                        <CheckBox x:Name="OscEnabledBox" Content="Ta imot OSC (fjernstyring fra Companion, TouchOSC, lysbord …)" Margin="0,4,0,0" />
+                        <TextBlock Style="{StaticResource Label}" Text="UDP-port" />
+                        <TextBox x:Name="OscPortBox" />
+                        <TextBlock Style="{StaticResource Hint}" x:Name="OscAddressText" />
+                        <TextBlock Style="{StaticResource Label}" Text="Kommandoer" Margin="0,14,0,3" />
+                        <Border Background="{DynamicResource Panel2}" CornerRadius="4" Padding="10,8">
+                            <TextBlock FontFamily="{StaticResource MonoFont}" FontSize="12" Foreground="{DynamicResource Text}" LineHeight="19"><Run Text="/go" /><Run Foreground="{DynamicResource Muted}" Text="               GO" /><LineBreak />
+                                <Run Text="/stop" /><Run Foreground="{DynamicResource Muted}" Text="             stopp alt (med fade)" /><LineBreak />
+                                <Run Text="/panic" /><Run Foreground="{DynamicResource Muted}" Text="            som Esc (2× = umiddelbart)" /><LineBreak />
+                                <Run Text="/hardstop" /><Run Foreground="{DynamicResource Muted}" Text="         stopp alt umiddelbart" /><LineBreak />
+                                <Run Text="/next  /previous" /><Run Foreground="{DynamicResource Muted}" Text="  flytt markøren" /><LineBreak />
+                                <Run Text="/playhead/12" /><Run Foreground="{DynamicResource Muted}" Text="      sett markøren til cue 12" /><LineBreak />
+                                <Run Text="/cue/12/start" /><Run Foreground="{DynamicResource Muted}" Text="     start cue 12" /><LineBreak />
+                                <Run Text="/cue/12/stop" /><Run Foreground="{DynamicResource Muted}" Text="      stopp cue 12" /><LineBreak />
+                                <Run Text="/cue/12/go" /><Run Foreground="{DynamicResource Muted}" Text="        markør til 12 + GO" /><LineBreak />
+                                <Run Text="/hotkey/F1" /><Run Foreground="{DynamicResource Muted}" Text="        som å trykke F1" /></TextBlock>
+                        </Border>
+                        <TextBlock Style="{StaticResource Hint}"
+                                   Text="Argument 0 ignoreres (knapp sluppet). Windows-brannmuren spør første gang – tillat ShowCue på private nettverk." />
+
+                        <Rectangle Height="1" Fill="{DynamicResource Line}" Margin="0,18,0,10" />
+                        <TextBlock Text="STATUS UT (TIL COMPANION)" Style="{StaticResource SectionHeader}" />
+                        <CheckBox x:Name="FbEnabledBox" Content="Send status: neste cue, hva som spiller, tid igjen" Margin="0,4,0,0" />
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="2*" /><ColumnDefinition Width="10" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Label}" Text="Mottaker (IP)" />
+                                <TextBox x:Name="FbHostBox" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Style="{StaticResource Label}" Text="Port" />
+                                <TextBox x:Name="FbPortBox" />
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Style="{StaticResource Label}" Text="Format" />
+                        <ComboBox x:Name="FbFormatBox" ItemsSource="{x:Static local:EnumValues.FeedbackFormats}" ItemTemplate="{StaticResource EnumItem}" />
+                        <TextBlock Style="{StaticResource Hint}"
+                                   Text="Companion: setter egendefinerte variabler (Custom Variables) via Companions OSC-port (standard 12321, slås på under Settings → Protocols). Opprett variablene i Companion først: sc_next_name, sc_next_number, sc_playing, sc_remaining, sc_state m.fl. – se README. Bruk dem i knappetekst som $(internal:custom_sc_next_name)." />
+                        <TextBlock Style="{StaticResource Hint}"
+                                   Text="Generisk: /showcue/next/name, /showcue/remaining … og /showcue/cue/{nr}/running 1/0 – for moduler/programmer som lytter på OSC." />
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ================= MIDI ================= -->
+            <TabItem Header="MIDI inn">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Style="{StaticResource Page}">
+                        <TextBlock Style="{StaticResource Label}" Text="MIDI-inngang" />
+                        <ComboBox x:Name="MidiInBox" />
+                        <TextBlock Style="{StaticResource Label}" Text="Kanal" />
+                        <ComboBox x:Name="MidiChannelBox" DisplayMemberPath="Value" SelectedValuePath="Key" />
+
+                        <TextBlock Style="{StaticResource Label}" Text="Faste funksjoner" Margin="0,14,0,3" />
+                        <Grid x:Name="MidiMapGrid">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="110" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition />
+                            </Grid.RowDefinitions>
+                        </Grid>
+                        <TextBlock Style="{StaticResource Hint}" x:Name="LearnHint"
+                                   Text="«Lær»: klikk, og trykk en tast/knapp på kontrolleren. Lær bruker inngangen som er aktiv nå – bytter du inngang, trykk OK og åpne innstillingene igjen først. Hver cue kan også få sin egen MIDI-trigger i panelet til høyre i hovedvinduet." />
+
+                        <CheckBox x:Name="MscBox" Content="Ta imot MIDI Show Control (MSC GO / STOP med cuenummer)" Margin="0,14,0,0" />
+                        <TextBlock Style="{StaticResource Label}" Text="MSC device ID (127 = alle)" />
+                        <TextBox x:Name="MscIdBox" />
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ================= UTSEENDE ================= -->
+            <TabItem Header="Utseende">
+                <StackPanel Style="{StaticResource Page}">
+                    <TextBlock Style="{StaticResource Label}" Text="Fargetema" />
+                    <ComboBox x:Name="ThemeBox" ItemsSource="{x:Static local:EnumValues.Themes}" ItemTemplate="{StaticResource EnumItem}"
+                              SelectionChanged="Theme_Changed" />
+                    <TextBlock Style="{StaticResource Hint}"
+                               Text="Mørk passer de fleste kontrollrom. Lys er lettest å lese i dagslys og på prøver. Nattmodus er ekstra dempet for mørke scener og sidescene. Temaet byttes med en gang (også med ☀-knappen i verktøylinja)." />
+                </StackPanel>
+            </TabItem>
+
+            <!-- ================= SIKKERHET ================= -->
+            <TabItem Header="Sikkerhet">
+                <StackPanel Style="{StaticResource Page}">
+                    <TextBlock Style="{StaticResource Label}" Text="Stopp alt: fade-tid (s)" />
+                    <TextBox x:Name="PanicBox" />
+                    <TextBlock Style="{StaticResource Label}" Text="Dobbel-GO-sperre (ms)" />
+                    <TextBox x:Name="DoubleGoBox" />
+                    <TextBlock Style="{StaticResource Hint}" Text="GO ignoreres hvis det kommer innen denne tiden etter forrige GO (prell på tast eller kontroller)." />
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>

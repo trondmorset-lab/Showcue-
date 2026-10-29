@@ -1,0 +1,39 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Fargetema: Light. Alle kontroller henter farger herfra med DynamicResource. -->
+    <SolidColorBrush x:Key="Bg" Color="#E9EAEE" />
+    <SolidColorBrush x:Key="Panel" Color="#F6F6F8" />
+    <SolidColorBrush x:Key="Panel2" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="Panel3" Color="#E6E7EB" />
+    <SolidColorBrush x:Key="Line" Color="#D3D5DB" />
+    <SolidColorBrush x:Key="Text" Color="#1D1E22" />
+    <SolidColorBrush x:Key="Muted" Color="#5F636B" />
+    <SolidColorBrush x:Key="Faint" Color="#92969E" />
+    <SolidColorBrush x:Key="Go" Color="#2BA65C" />
+    <SolidColorBrush x:Key="GoHover" Color="#34B868" />
+    <SolidColorBrush x:Key="GoText" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="Running" Color="#239A55" />
+    <SolidColorBrush x:Key="RunningRow" Color="#DDF2E4" />
+    <SolidColorBrush x:Key="Wait" Color="#B97510" />
+    <SolidColorBrush x:Key="Danger" Color="#D93A3F" />
+    <SolidColorBrush x:Key="DangerHover" Color="#E54C51" />
+    <SolidColorBrush x:Key="Playhead" Color="#2F6FE4" />
+    <SolidColorBrush x:Key="PlayheadRow" Color="#D9E6FD" />
+    <SolidColorBrush x:Key="RowAlt" Color="#F7F8FA" />
+    <SolidColorBrush x:Key="GridLine" Color="#E6E7EB" />
+    <!-- Cuefarger: bakgrunn i lista og stripe/merke -->
+    <SolidColorBrush x:Key="CueRed" Color="#F8D9DA" />
+    <SolidColorBrush x:Key="CueRedStripe" Color="#D93A3F" />
+    <SolidColorBrush x:Key="CueOrange" Color="#FBE3CF" />
+    <SolidColorBrush x:Key="CueOrangeStripe" Color="#E07320" />
+    <SolidColorBrush x:Key="CueYellow" Color="#F8F0C6" />
+    <SolidColorBrush x:Key="CueYellowStripe" Color="#CFA717" />
+    <SolidColorBrush x:Key="CueGreen" Color="#D7F0DF" />
+    <SolidColorBrush x:Key="CueGreenStripe" Color="#2BA65C" />
+    <SolidColorBrush x:Key="CueBlue" Color="#D7E5FA" />
+    <SolidColorBrush x:Key="CueBlueStripe" Color="#2F6FE4" />
+    <SolidColorBrush x:Key="CuePurple" Color="#E7DDF8" />
+    <SolidColorBrush x:Key="CuePurpleStripe" Color="#8452E0" />
+    <SolidColorBrush x:Key="CueGray" Color="#E4E5E8" />
+    <SolidColorBrush x:Key="CueGrayStripe" Color="#7C7F87" />
+</ResourceDictionary>
