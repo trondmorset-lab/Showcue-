@@ -1,6 +1,6 @@
 # ShowCue
 
-QLab-klone for Windows og Mac.
+Showavvikliing for Windows og Mac.
 
 Cue-basert avspillingsprogram for konsert, event og teater, i samme ånd som QLab.
 Det finnes i to utgaver som deler showformat:
