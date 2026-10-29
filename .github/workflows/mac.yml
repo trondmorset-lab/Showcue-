@@ -4,6 +4,9 @@ on:
   push:
   workflow_dispatch:
 
+permissions:
+  contents: write   # for å legge ferdig program i releasen «siste»
+
 jobs:
   mac:
     runs-on: macos-15-intel
@@ -54,3 +57,13 @@ jobs:
           name: ShowCue-Mac
           path: Mac/build/ShowCue-Mac.zip
           retention-days: 7
+
+      # Ferdig program legges i releasen «siste» (teller ikke mot artefaktkvoten).
+      - name: Publiser til release «siste»
+        if: github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view siste >/dev/null 2>&1 || gh release create siste --prerelease --title "Siste bygg" --notes "Bygges automatisk fra main ved hver endring. Mac: ShowCue-Mac.zip. Windows: ShowCue.exe."
+          gh release upload siste "Mac/build/ShowCue-Mac.zip" --clobber
