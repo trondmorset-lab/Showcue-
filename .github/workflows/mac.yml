@@ -9,16 +9,48 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-      - name: Tester
+
+      - name: Bygg
         working-directory: Mac
-        run: swift test
+        run: |
+          set -o pipefail
+          swift build 2>&1 | tee "$GITHUB_WORKSPACE/build.log" || echo "FAILED=1" >> "$GITHUB_ENV"
+
+      - name: Tester
+        if: env.FAILED != '1'
+        working-directory: Mac
+        run: |
+          set -o pipefail
+          swift test 2>&1 | tee "$GITHUB_WORKSPACE/build.log" || echo "FAILED=1" >> "$GITHUB_ENV"
+
+      # Feilene legges ut som annotasjoner (10 per steg), så de kan leses uten å laste ned loggen.
+      - name: Feil 1–10
+        if: env.FAILED == '1'
+        run: python3 .github/scripts/annotate.py build.log 1
+      - name: Feil 11–20
+        if: env.FAILED == '1'
+        run: python3 .github/scripts/annotate.py build.log 2
+      - name: Feil 21–30
+        if: env.FAILED == '1'
+        run: python3 .github/scripts/annotate.py build.log 3
+      - name: Feil 31–40
+        if: env.FAILED == '1'
+        run: python3 .github/scripts/annotate.py build.log 4
+      - name: Stopp ved feil
+        if: env.FAILED == '1'
+        run: exit 1
+
       - name: Lag ShowCue.app
         working-directory: Mac
         run: ./build-app.sh
+
       - name: Pakk
         working-directory: Mac/build
         run: ditto -c -k --keepParent ShowCue.app ShowCue-Mac.zip
+
       - uses: actions/upload-artifact@v4
+        continue-on-error: true   # full lagringskvote skal ikke gjøre bygget rødt
         with:
           name: ShowCue-Mac
           path: Mac/build/ShowCue-Mac.zip
+          retention-days: 7
