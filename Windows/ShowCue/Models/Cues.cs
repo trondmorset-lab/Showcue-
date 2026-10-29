@@ -10,6 +10,21 @@ public enum MidiMessageType { NoteOn, NoteOff, ProgramChange, ControlChange, Msc
 /// <summary>Fargemerking av cuer i lista (som i QLab).</summary>
 public enum CueColor { None, Red, Orange, Yellow, Green, Blue, Purple, Gray }
 
+/// <summary>Cuer med start- og sluttpunkt i en mediefil (lyd og video) – brukes av bølgeform-redigereren.</summary>
+public interface ITrimmable : System.ComponentModel.INotifyPropertyChanged
+{
+    string FilePath { get; }
+    double StartTime { get; set; }
+    /// <summary>0 = til slutten av fila.</summary>
+    double EndTime { get; set; }
+    double FadeIn { get; }
+    double FadeOut { get; }
+    bool Loop { get; }
+    /// <summary>Lengden på hele fila (0 = ukjent).</summary>
+    double MediaLength { get; }
+    bool IsVideo { get; }
+}
+
 /// <summary>Cuer med lyd som går gjennom lydpatchen (lyd-cuer og lydsporet i video-cuer).</summary>
 public interface IRoutedAudio : System.ComponentModel.INotifyPropertyChanged
 {
@@ -111,7 +126,7 @@ public interface IFileCue
 // ======================================================================
 //  LYD
 // ======================================================================
-public sealed class AudioCue : Cue, IFileCue, IRoutedAudio
+public sealed class AudioCue : Cue, IFileCue, IRoutedAudio, ITrimmable
 {
     private string _filePath = "";
     private double _volumeDb;
@@ -144,6 +159,8 @@ public sealed class AudioCue : Cue, IFileCue, IRoutedAudio
     public double FadeOut { get => _fadeOut; set => SetCue(ref _fadeOut, Math.Max(0, value)); }
     /// <summary>Lengden på lydfila. Fylles inn automatisk.</summary>
     public double FileDuration { get => _fileDuration; set => SetCue(ref _fileDuration, value); }
+    [JsonIgnore] public double MediaLength => FileDuration;
+    [JsonIgnore] public bool IsVideo => false;
 
     public override string TypeName => "Lyd";
     public override string TypeIcon => "♪";
@@ -191,8 +208,10 @@ public abstract class VisualCue : Cue, IFileCue
     protected override string DefaultName => Path.GetFileNameWithoutExtension(FilePath) is { Length: > 0 } n ? n : TypeName;
 }
 
-public sealed class VideoCue : VisualCue, IRoutedAudio
+public sealed class VideoCue : VisualCue, IRoutedAudio, ITrimmable
 {
+    private double _startTime;
+    private double _endTime;
     private double _volumeDb;
     private bool _loop;
     private double _knownDuration;
@@ -219,12 +238,20 @@ public sealed class VideoCue : VisualCue, IRoutedAudio
     public bool Loop { get => _loop; set => SetCue(ref _loop, value); }
     /// <summary>Fylles inn første gang videoen åpnes.</summary>
     public double KnownDuration { get => _knownDuration; set => SetCue(ref _knownDuration, value); }
+    /// <summary>Startpunkt i videoen (sekunder).</summary>
+    public double StartTime { get => _startTime; set => SetCue(ref _startTime, Math.Max(0, value)); }
+    /// <summary>Sluttpunkt i videoen (sekunder). 0 = til slutten.</summary>
+    public double EndTime { get => _endTime; set => SetCue(ref _endTime, Math.Max(0, value)); }
+    [JsonIgnore] public double MediaLength => KnownDuration;
+    [JsonIgnore] public bool IsVideo => true;
+    /// <summary>Faktisk sluttpunkt (sekunder), 0 = ukjent.</summary>
+    [JsonIgnore] public double EffectiveEnd => EndTime > 0 ? (KnownDuration > 0 ? Math.Min(EndTime, KnownDuration) : EndTime) : KnownDuration;
 
     public override string TypeName => "Video";
     public override string TypeIcon => "▶";
     public override string Summary => FileLabel(FilePath) + (Loop ? "  ⟲" : "")
         + (FileChannels == 0 ? "  (ingen lyd)" : Routes is { Count: 0 } ? "  (lyd av)" : VolumeDb != 0 ? $"  {VolumeDb:+0.#;-0.#} dB" : "");
-    public override double Duration => Loop ? 0 : KnownDuration;
+    public override double Duration => Loop || EffectiveEnd <= 0 ? 0 : Math.Max(0, EffectiveEnd - StartTime);
 }
 
 public abstract class StillCue : VisualCue

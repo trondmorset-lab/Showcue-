@@ -19,6 +19,8 @@ public sealed class CueEngine : IDisposable
     private OutputWindow? _output;
 
     public AudioEngine Audio { get; } = new();
+    /// <summary>Forhåndslytting i bølgeformredigeringen (går gjennom lydpatchen, men er ikke en del av showet).</summary>
+    public AudioPreview Preview { get; }
     public MidiEngine Midi { get; } = new();
     public AppSettings Settings { get; private set; }
     public ObservableCollection<ActiveCue> Active { get; } = new();
@@ -35,6 +37,7 @@ public sealed class CueEngine : IDisposable
     {
         Settings = settings;
         _cueList = cueList;
+        Preview = new AudioPreview(() => Audio.Mixer);
         _timer = new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromMilliseconds(16) };
         _timer.Tick += (_, _) => Tick();
         _timer.Start();
@@ -156,6 +159,7 @@ public sealed class CueEngine : IDisposable
 
     public void StopAll(double fade)
     {
+        Preview.Stop();
         foreach (var a in Active.ToList()) a.Stop(fade);
     }
 

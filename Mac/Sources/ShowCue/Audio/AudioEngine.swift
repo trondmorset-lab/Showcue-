@@ -119,7 +119,7 @@ final class AudioEngine: ObservableObject {
     /// Lydsporet i en video. nil hvis videoen ikke har lyd.
     func makePlayback(videoAudio cue: Cue) -> Playback? {
         guard let m = mixer, let decoder = try? AssetDecoder(url: URL(fileURLWithPath: cue.filePath), outputRate: m.sampleRate) else { return nil }
-        let stream = StreamingSource(decoder: decoder, sampleRate: m.sampleRate, startTime: 0, endTime: 0, loop: cue.loop)
+        let stream = StreamingSource(decoder: decoder, sampleRate: m.sampleRate, startTime: cue.startTime, endTime: cue.endTime, loop: cue.loop)
         // Fade ut styres av video-cuen (samme tid for bilde og lyd).
         let voice = Voice(source: stream, sampleRate: m.sampleRate, volumeDb: cue.volumeDb, fadeIn: cue.fadeIn, fadeOut: 0,
                           loop: stream.loop, routes: cue.effectiveRoutes(fileChannels: decoder.channels))

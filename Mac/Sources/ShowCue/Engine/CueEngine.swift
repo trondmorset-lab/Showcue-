@@ -7,6 +7,8 @@ final class CueEngine: ObservableObject {
     let audio: AudioEngine
     let output: OutputCompositor
     let midi: MidiSystem
+    /// Forhåndslytting i bølgeformredigeringen (gjennom lydpatchen, men ikke en del av showet).
+    let preview: AudioPreview
     private let cueList: () -> [Cue]
     private let t0 = CACurrentMediaTime()
     private var timer: Timer?
@@ -22,6 +24,7 @@ final class CueEngine: ObservableObject {
         self.output = output
         self.midi = midi
         self.cueList = cueList
+        self.preview = AudioPreview(mixer: { [weak audio] in audio?.mixer })
         let t = Timer(timeInterval: 1.0 / 60, repeats: true) { [weak self] _ in self?.tick() }
         RunLoop.main.add(t, forMode: .common) // går også mens menyer er åpne
         timer = t
@@ -109,6 +112,7 @@ final class CueEngine: ObservableObject {
     }
 
     func stopAll(fade: Double) {
+        preview.stop()
         active.forEach { $0.stop(fade: fade) }
     }
 

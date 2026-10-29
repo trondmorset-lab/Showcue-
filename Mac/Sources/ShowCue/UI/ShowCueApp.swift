@@ -23,6 +23,13 @@ struct ShowCueApp: App {
         }
         .defaultSize(width: 1000, height: 620)
 
+        Window("Rediger start og slutt", id: "trim") {
+            Themed { TrimWindowView() }
+                .environmentObject(delegate.model)
+                .environmentObject(delegate.model.audio)
+        }
+        .defaultSize(width: 1100, height: 620)
+
         Settings {
             Themed { SettingsView() }
                 .environmentObject(delegate.model)

@@ -45,9 +45,10 @@ Samplingsfrekvensen følger enheten, og filer med en annen frekvens konverteres 
 | Lydformater | WAV, AIFF, MP3, M4A/AAC, ALAC, FLAC, CAF | WAV, AIFF, MP3, M4A/AAC, FLAC, WMA |
 | Videoformater | MP4, MOV, M4V (H.264, HEVC, ProRes) | MP4, MOV, WMV, AVI, MKV (H.264 tryggest) |
 | Innstillinger | `~/Library/Application Support/ShowCue/` | `%AppData%\ShowCue\` |
+| Zoom i bølgeform | Knip på styreflaten eller −/+ | Musehjul |
 | Hurtigtaster | F-tastene krever `fn`, med mindre «Bruk F1, F2 osv. som standard funksjonstaster» er slått på | |
 
-Alt annet er likt: cuetyper, routingmatrise, lydpatch, videolyd gjennom patchen, OSC/MIDI inn og ut, MSC, status til Companion, temaer og cuefarger.
+Alt annet er likt: cuetyper, start/slutt-redigering med bølgeform og forhåndslytting, routingmatrise, lydpatch, videolyd gjennom patchen, OSC/MIDI inn og ut, MSC, status til Companion, temaer og cuefarger.
 Se README i Windows-mappa for full beskrivelse av OSC-kommandoer og Companion-variabler.
 
 **Showfiler mellom Mac og Windows:** stiene til mediefilene er forskjellige på de to plattformene. ShowCue leter derfor etter mediefiler

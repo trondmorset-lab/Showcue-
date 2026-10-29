@@ -97,6 +97,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged, IShowControl
         ThemeManager.Register(this);
         ThemeManager.Changed += () => Raise(nameof(ThemeGlyph));
         Engine = new CueEngine(_settings, () => Cues);
+        WaveformEditor.Engine = Engine;
         Remote = new RemoteControl(this, Dispatcher, _settings);
         Remote.StatusChanged += () => Raise(nameof(RemoteStatus));
 

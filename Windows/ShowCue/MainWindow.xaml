@@ -56,6 +56,10 @@
                         <CheckBox IsChecked="{Binding Loop}" Content="Gjenta til stoppet" Margin="0,5,0,0" />
                     </StackPanel>
                 </Grid>
+                <TextBlock Style="{StaticResource Label}" Text="Start og slutt" Margin="0,14,0,3" />
+                <local:WaveformEditor Cue="{Binding}" />
+                <TextBlock Style="{StaticResource Hint}"
+                           Text="Dra den grønne (start) og røde (slutt) markøren. Klikk for å flytte den blå markøren, dobbeltklikk for å lytte derfra. Musehjul zoomer, Shift+hjul ruller. Lyttingen går gjennom lydpatchen." />
                 <Grid>
                     <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="10" /><ColumnDefinition /></Grid.ColumnDefinitions>
                     <StackPanel>
@@ -122,6 +126,22 @@
                     </StackPanel>
                 </Grid>
                 <ContentControl Content="{Binding}" ContentTemplate="{StaticResource VisualCommon}" />
+
+                <TextBlock Style="{StaticResource Label}" Text="Start og slutt" Margin="0,14,0,3" />
+                <local:WaveformEditor Cue="{Binding}" />
+                <TextBlock Style="{StaticResource Hint}"
+                           Text="Dra den grønne (start) og røde (slutt) markøren. Klikk for å flytte den blå markøren, dobbeltklikk for å lytte derfra. Musehjul zoomer, Shift+hjul ruller. Lyttingen spiller lydsporet gjennom lydpatchen. Med loop hopper videoen tilbake til start ved sluttpunktet." />
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="10" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource Label}" Text="Start (s)" />
+                        <TextBox Text="{Binding StartTime}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Style="{StaticResource Label}" Text="Slutt (s, 0 = filslutt)" />
+                        <TextBox Text="{Binding EndTime}" />
+                    </StackPanel>
+                </Grid>
 
                 <TextBlock Style="{StaticResource Label}" Text="Lydspor → utganger (dB)" Margin="0,14,0,3" />
                 <TextBlock Style="{StaticResource Hint}" Text="Videoen har ikke noe lydspor." Margin="0,0,0,4"

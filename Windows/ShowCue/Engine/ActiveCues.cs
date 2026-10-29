@@ -336,24 +336,13 @@ public sealed class VideoActive : VisualActive
 
         _media.MediaOpened += (_, _) =>
         {
-            if (_media.NaturalDuration.HasTimeSpan)
-            {
-                var d = _media.NaturalDuration.TimeSpan.TotalSeconds;
-                VidCue.KnownDuration = d;
-                Duration = VidCue.Loop ? 0 : d;
-            }
+            if (_media.NaturalDuration.HasTimeSpan) VidCue.KnownDuration = _media.NaturalDuration.TimeSpan.TotalSeconds;
+            var end = VidCue.EffectiveEnd;
+            Duration = VidCue.Loop || end <= 0 ? 0 : Math.Max(0, end - VidCue.StartTime);
+            if (VidCue.StartTime > 0) _media.Position = TimeSpan.FromSeconds(VidCue.StartTime);
             StartAudio(); // bilde og lyd starter samtidig
         };
-        _media.MediaEnded += (_, _) =>
-        {
-            if (VidCue.Loop && !IsStopping)
-            {
-                _media.Position = TimeSpan.Zero;
-                _media.Play();
-                _audio?.RequestRewind();
-            }
-            else Finish();
-        };
+        _media.MediaEnded += (_, _) => ReachedEnd();
         _media.MediaFailed += (_, e) =>
         {
             Cue.Error = "Video: " + e.ErrorException?.Message;
@@ -378,7 +367,7 @@ public sealed class VideoActive : VisualActive
         }
         if (VidCue.FileChannels != reader.WaveFormat.Channels) VidCue.FileChannels = reader.WaveFormat.Channels;
         // Fade ut håndteres av VideoActive (samme tid for bilde og lyd), derfor FadeOut = 0 her.
-        var o = new CuePlayback.Options(VidCue.VolumeDb, 0, 0, VidCue.Loop, VidCue.FadeIn, 0);
+        var o = new CuePlayback.Options(VidCue.VolumeDb, VidCue.StartTime, VidCue.EndTime, VidCue.Loop, VidCue.FadeIn, 0);
         _audio = new CuePlayback(VidCue, reader, VidCue, o, mixer.WaveFormat.SampleRate);
         var pb = _audio;
         pb.Finished += _ => Application.Current.Dispatcher.BeginInvoke(pb.Dispose);
@@ -399,11 +388,34 @@ public sealed class VideoActive : VisualActive
         else if (e.PropertyName == nameof(VideoCue.VolumeDb) && !IsStopping) _audio.AdjustLevel(VidCue.VolumeDb);
     }
 
+    /// <summary>Videoen nådde sluttpunktet (eller slutten av fila).</summary>
+    private void ReachedEnd()
+    {
+        if (_media == null || Done) return;
+        if (VidCue.Loop && !IsStopping)
+        {
+            _media.Position = TimeSpan.FromSeconds(VidCue.StartTime);
+            _media.Play();
+            // Lyden looper selv ved sluttpunktet; spol bare tilbake hvis den ikke allerede har gjort det.
+            if (_audio != null && _audio.PassPosition > 1.0) _audio.RequestRewind();
+            _lastResync = Engine.Now;
+        }
+        else Finish();
+    }
+
     internal override void Tick()
     {
         base.Tick();
         if (_media == null || Done) return;
-        Elapsed = _media.Position.TotalSeconds;
+        var pos = _media.Position.TotalSeconds;
+        Elapsed = Math.Max(0, pos - VidCue.StartTime);
+
+        // Sluttpunkt før slutten av fila.
+        if (VidCue.EndTime > 0 && pos >= VidCue.EndTime && (VidCue.Loop || !IsStopping))
+        {
+            ReachedEnd();
+            if (Done) return;
+        }
 
         // Lyden er «master». Lydkortet (f.eks. Dante-klokka) og PC-klokka går aldri helt likt,
         // så bildet justeres hvis det glir mer enn MaxDrift fra lyden.
@@ -412,7 +424,7 @@ public sealed class VideoActive : VisualActive
             var audioPos = _audio.PassPosition;
             if (audioPos > 0.5 && Math.Abs(audioPos - Elapsed) > MaxDrift && (Duration == 0 || audioPos < Duration - 1))
             {
-                _media.Position = TimeSpan.FromSeconds(audioPos);
+                _media.Position = TimeSpan.FromSeconds(VidCue.StartTime + audioPos);
                 _lastResync = Engine.Now;
             }
         }

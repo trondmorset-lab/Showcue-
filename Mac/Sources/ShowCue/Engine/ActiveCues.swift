@@ -213,11 +213,18 @@ final class VideoActive: VisualActive {
     private var statusObs: NSKeyValueObservation?
     private var endObs: NSObjectProtocol?
     private var lastResync: Double = 0
+    private var lastLoop: Double = -10
+    private var seekedToStart = false
+    private var startTime: Double = 0
+    private var endTime: Double = 0
     private var subs: Set<AnyCancellable> = []
     static let maxDrift = 0.12
 
     override func makeLayers() throws -> LayerPair {
         let item = AVPlayerItem(url: URL(fileURLWithPath: cue.filePath))
+        startTime = max(0, cue.startTime)
+        endTime = cue.endTime > startTime ? cue.endTime : 0
+        if endTime > 0 { item.forwardPlaybackEndTime = CMTime(seconds: endTime, preferredTimescale: 600) }
         let p = AVPlayer(playerItem: item)
         p.isMuted = true
         p.volume = 0
@@ -245,7 +252,7 @@ final class VideoActive: VisualActive {
             self.audio?.adjustLevel(db)
         }.store(in: &subs)
 
-        p.play()
+        if startTime == 0 { p.play() } // ellers: spol først når fila er klar (itemStatusChanged)
         return engine.output.addVideo(p, stretch: cue.stretch)
     }
 
@@ -254,11 +261,21 @@ final class VideoActive: VisualActive {
         switch item.status {
         case .readyToPlay:
             let d = item.duration.seconds
-            if d.isFinite && d > 0 {
-                cue.knownDuration = d
-                duration = cue.loop ? 0 : d
+            if d.isFinite && d > 0 { cue.knownDuration = d }
+            let end = endTime > 0 ? (d.isFinite && d > 0 ? min(endTime, d) : endTime) : (d.isFinite ? d : 0)
+            duration = cue.loop || end <= 0 ? 0 : max(0, end - startTime)
+            if startTime > 0, let p = player, !seekedToStart {
+                seekedToStart = true
+                p.seek(to: CMTime(seconds: startTime, preferredTimescale: 600), toleranceBefore: .zero, toleranceAfter: .zero) { [weak self] _ in
+                    DispatchQueue.main.async {
+                        guard let self, !self.done else { return }
+                        self.player?.play()
+                        self.startAudio() // bilde og lyd starter samtidig
+                    }
+                }
+            } else {
+                startAudio() // bilde og lyd starter samtidig
             }
-            startAudio() // bilde og lyd starter samtidig
         case .failed:
             cue.error = "Video: " + (item.error?.localizedDescription ?? "ukjent feil")
             finish()
@@ -276,9 +293,13 @@ final class VideoActive: VisualActive {
     private func reachedEnd() {
         guard !done else { return }
         if cue.loop && !isStopping {
-            player?.seek(to: .zero)
+            guard engine.now - lastLoop > 0.3 else { return } // både sluttvarsel og takt kan melde samme slutt
+            lastLoop = engine.now
+            player?.seek(to: CMTime(seconds: startTime, preferredTimescale: 600), toleranceBefore: .zero, toleranceAfter: .zero)
             player?.play()
-            audio?.requestRewind()
+            // Lyden looper selv ved sluttpunktet; spol bare tilbake hvis den ikke allerede har startet en ny runde.
+            if let a = audio, a.passPosition > 1.0 { a.requestRewind() }
+            lastResync = engine.now
         } else {
             finish()
         }
@@ -288,12 +309,16 @@ final class VideoActive: VisualActive {
         super.tick()
         guard let p = player, started, !done else { return }
         let pos = p.currentTime().seconds
-        if pos.isFinite { elapsed = pos }
+        if pos.isFinite {
+            elapsed = max(0, pos - startTime)
+            // Reserve hvis sluttvarselet ikke kommer (f.eks. etter spoling).
+            if endTime > 0, pos >= endTime - 0.005, cue.loop || !isStopping { reachedEnd(); return }
+        }
 
         if let a = audio, audioStarted, !isStopping, engine.now - lastResync > 2 {
             let audioPos = a.passPosition
             if audioPos > 0.5, abs(audioPos - elapsed) > VideoActive.maxDrift, duration == 0 || audioPos < duration - 1 {
-                p.seek(to: CMTime(seconds: audioPos, preferredTimescale: 600), toleranceBefore: .zero, toleranceAfter: .zero)
+                p.seek(to: CMTime(seconds: startTime + audioPos, preferredTimescale: 600), toleranceBefore: .zero, toleranceAfter: .zero)
                 lastResync = engine.now
             }
         }

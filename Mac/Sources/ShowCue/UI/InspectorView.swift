@@ -164,6 +164,9 @@ struct CueInspector: View {
             } _: {
                 FieldLabel("Loop"); Toggle("Gjenta til stoppet", isOn: $cue.loop).padding(.top, 4)
             }
+            FieldLabel("Start og slutt").padding(.top, 6)
+            WaveformEditorView(cue: cue, preview: model.engine.preview).id(cue.id)
+            Hint("Dra den grønne (start) og røde (slutt) markøren. Klikk for å flytte den blå markøren, dobbeltklikk for å lytte derfra. Knip på styreflaten for å zoome. Lyttingen går gjennom lydpatchen.")
             Pair {
                 FieldLabel("Start (s)"); NumberInput(value: $cue.startTime, range: 0...86400)
             } _: {
@@ -205,6 +208,14 @@ struct CueInspector: View {
                 FieldLabel("Loop"); Toggle("Gjenta til stoppet", isOn: $cue.loop).padding(.top, 4)
             }
             visualCommon
+            FieldLabel("Start og slutt").padding(.top, 6)
+            WaveformEditorView(cue: cue, preview: model.engine.preview).id(cue.id)
+            Hint("Dra den grønne (start) og røde (slutt) markøren. Klikk for å flytte den blå markøren, dobbeltklikk for å lytte derfra. Knip på styreflaten for å zoome. Lyttingen spiller lydsporet gjennom lydpatchen. Med loop hopper videoen tilbake til start ved sluttpunktet.")
+            Pair {
+                FieldLabel("Start (s)"); NumberInput(value: $cue.startTime, range: 0...86400)
+            } _: {
+                FieldLabel("Slutt (s, 0 = filslutt)"); NumberInput(value: $cue.endTime, range: 0...86400)
+            }
             FieldLabel("Lydspor → utganger (dB)").padding(.top, 6)
             if cue.hasNoAudio { Hint("Videoen har ikke noe lydspor.") }
             RoutingMatrixView(cue: cue)

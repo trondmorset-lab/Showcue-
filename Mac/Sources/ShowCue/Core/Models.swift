@@ -279,6 +279,14 @@ final class Cue: ObservableObject, Identifiable, Codable {
         }
     }
 
+    /// Lengden på hele fila (lyd eller video), 0 = ukjent.
+    var mediaLength: Double { type == .video ? knownDuration : fileDuration }
+
+    /// Sluttpunktet i en video (0 = ukjent).
+    var videoEnd: Double {
+        endTime > 0 ? (knownDuration > 0 ? min(endTime, knownDuration) : endTime) : knownDuration
+    }
+
     /// Varighet i sekunder, 0 = ukjent/uendelig.
     var duration: Double {
         switch type {
@@ -286,7 +294,9 @@ final class Cue: ObservableObject, Identifiable, Codable {
             if loop { return 0 }
             let end = endTime > 0 ? min(endTime, fileDuration > 0 ? fileDuration : endTime) : fileDuration
             return max(0, end - startTime)
-        case .video: return loop ? 0 : knownDuration
+        case .video:
+            let end = videoEnd
+            return loop || end <= 0 ? 0 : max(0, end - startTime)
         case .image, .pdf: return holdTime > 0 ? fadeIn + holdTime + fadeOut : 0
         case .fade, .stop: return fadeTime
         default: return 0
@@ -396,6 +406,8 @@ final class Cue: ObservableObject, Identifiable, Codable {
             try c.encode(stretch, forKey: .Stretch)
             if type == .video {
                 try c.encode(volumeDb, forKey: .VolumeDb)
+                try c.encode(startTime, forKey: .StartTime)
+                try c.encode(endTime, forKey: .EndTime)
                 try c.encode(loop, forKey: .Loop)
                 try c.encode(knownDuration, forKey: .KnownDuration)
                 try c.encode(fileChannels, forKey: .FileChannels)

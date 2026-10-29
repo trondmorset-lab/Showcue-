@@ -19,7 +19,7 @@ Krever Windows 10 (1809) eller nyere, 64-bit.
 | Type | Hva den gjør |
 |---|---|
 | ♪ **Lyd** | WAV, MP3, AIFF, FLAC, M4A/AAC, WMA. Nivå (dB), start-/sluttpunkt, loop, fade inn/ut. |
-| ▶ **Video** | MP4, MOV, WMV, AVI, MKV. Lyden pakkes ut og går gjennom lydpatchen (se under). Loop, fade, krysstoning. |
+| ▶ **Video** | MP4, MOV, WMV, AVI, MKV. Lyden pakkes ut og går gjennom lydpatchen (se under). Start-/sluttpunkt, loop, fade, krysstoning. |
 | ▣ **Bilde** | PNG, JPG, BMP, GIF, TIFF. Valgfri visningstid, fade, krysstoning. |
 | ▤ **PDF** | Viser én side. «+ Cue for neste side» lager raskt en cue per side (sangtekster, presentasjoner). |
 | ◢ **Fade** | Fader en kjørende cue til et nytt lydnivå og/eller synlighet, valgfritt stopp etterpå. |
@@ -29,6 +29,17 @@ Krever Windows 10 (1809) eller nyere, 64-bit.
 
 Alle cues har **pre-wait** (forsinkelse før start), **auto-continue** (start neste samtidig),
 **auto-follow** (start neste når denne er ferdig), **hurtigtast**, **MIDI-trigger** og **notater**.
+
+### Start og slutt (bølgeform)
+
+Lyd- og video-cuer har en bølgeform i inspektøren der start- og sluttpunktet redigeres visuelt:
+
+- Dra den **grønne** markøren (start) og den **røde** (slutt). Området utenfor er mørklagt, og fade inn/ut vises som oransje linjer.
+- **Klikk** flytter den blå markøren, **dobbeltklikk** lytter derfra. **Musehjul** zoomer rundt musepekeren, **Shift + hjul** ruller.
+- **▶ Fra start**, **▶ Fra markør** og **▶ Slutten** (de siste 5 sekundene før sluttpunktet) lytter gjennom lydpatchen, uten å påvirke showet.
+- **Start = markør** / **Slutt = markør** setter punktet der markøren står – eller der lyttingen er akkurat nå, så du kan trykke mens det spiller.
+- **⤢ Stort vindu** åpner en stor redigeringsvisning. Slutt helt til slutten av fila lagres som «0 = filslutt».
+- For video starter bildet og lyden på startpunktet, og med loop hopper videoen tilbake til startpunktet.
 
 ## Lydpatch og flerkanals lydkort (Dante, ASIO)
 

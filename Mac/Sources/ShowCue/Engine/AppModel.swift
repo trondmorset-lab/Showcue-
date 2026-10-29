@@ -26,6 +26,8 @@ final class AppModel: ObservableObject, ShowControl {
     let live = LiveState()
     /// Cuen som venter på at brukeren trykker en hurtigtast.
     @Published var hotkeyCapture: Cue?
+    /// Cuen som vises i det store start/slutt-vinduet.
+    @Published var trimCue: Cue?
 
     // Innstillinger
     @Published var settings: AppSettings {
