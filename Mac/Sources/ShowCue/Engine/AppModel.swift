@@ -199,7 +199,10 @@ final class AppModel: ObservableObject, ShowControl {
         if d != isDirty { isDirty = d }
     }
 
-    var windowTitle: String { (showURL?.deletingPathExtension().lastPathComponent ?? "Uten navn") + (isDirty ? " •" : "") }
+    var windowTitle: String { (showURL?.deletingPathExtension().lastPathComponent ?? "Uten navn") + (isDirty ? " •" : "") + " — ShowCue " + AppModel.version }
+
+    /// Programversjonen fra Info.plist (settes fra VERSION-fila når appen bygges).
+    static var version: String { Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev" }
 
     func confirmDiscard() -> Bool {
         updateDirty()

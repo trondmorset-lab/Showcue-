@@ -10,7 +10,8 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <AssemblyName>ShowCue</AssemblyName>
     <RootNamespace>ShowCue</RootNamespace>
-    <Version>0.4.0</Version>
+    <!-- Versjonen hentes fra VERSION i roten av repoet (felles for Windows og Mac). -->
+    <Version>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)../../VERSION').Trim())</Version>
     <Product>ShowCue</Product>
     <Description>Cue-basert avspillingsprogram for lyd, video, bilder, PDF, OSC og MIDI</Description>
     <ApplicationManifest>app.manifest</ApplicationManifest>

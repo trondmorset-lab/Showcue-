@@ -17,6 +17,10 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN_DIR/ShowCue" "$APP/Contents/MacOS/ShowCue"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
+# Versjon fra VERSION i roten av repoet (felles for Windows og Mac).
+VERSION=$(tr -d '[:space:]' < ../VERSION)
+/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$APP/Contents/Info.plist"
+/usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VERSION" "$APP/Contents/Info.plist"
 codesign --force --deep --sign - "$APP" >/dev/null 2>&1 || true
 
 echo ""

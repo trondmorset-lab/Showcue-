@@ -189,7 +189,7 @@ Manglende filer merkes med rødt **!** i lista.
 Det finnes en egen Mac-versjon i mappa `Mac/`. Showfilene kan deles: show lagret på Mac åpnes i Windows-versjon 0.4+,
 og show fra Windows åpnes på Mac. ShowCue finner mediefilene igjen hvis de ligger ved siden av showfila eller i en undermappe `Media`.
 
-## Kjente begrensninger i versjon 0.4
+## Kjente begrensninger
 
 - Video spilles med Windows' innebygde mediemotor. MP4/H.264 med AAC-lyd er tryggest; enkelte MKV/HEVC-filer
   kan kreve kodeker fra Microsoft Store. Videoer med flere lydspor: bare det første brukes.

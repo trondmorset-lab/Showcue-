@@ -86,7 +86,17 @@ public partial class MainWindow : Window, INotifyPropertyChanged, IShowControl
     public string ActiveCountText => Engine.Active.Count == 0 ? "" : $"{Engine.Active.Count} aktive";
     public string StatusText { get => _statusText; set { _statusText = value; Raise(); } }
     public string WindowTitle =>
-        $"{(_showPath != null ? Path.GetFileNameWithoutExtension(_showPath) : "Uten navn")}{(IsDirty ? " •" : "")} — ShowCue";
+        $"{(_showPath != null ? Path.GetFileNameWithoutExtension(_showPath) : "Uten navn")}{(IsDirty ? " •" : "")} — ShowCue {AppVersion}";
+
+    /// <summary>Programversjonen (fra VERSION-fila ved bygging), f.eks. «0.5.0».</summary>
+    public static string AppVersion
+    {
+        get
+        {
+            var v = typeof(MainWindow).Assembly.GetName().Version;
+            return v == null ? "" : $"{v.Major}.{v.Minor}.{Math.Max(0, v.Build)}";
+        }
+    }
 
     private bool IsDirty => _show.ToJson() != _savedJson;
 
